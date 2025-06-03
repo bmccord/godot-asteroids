@@ -24,4 +24,5 @@ position = Vector2(0, -34)
 
 [node name="EngineSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_qhqgy")
+volume_db = -11.243
 pitch_scale = 15.0
