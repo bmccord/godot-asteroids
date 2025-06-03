@@ -1,6 +1,8 @@
 using Godot;
 using System;
 
+namespace Asteroids.Scripts;
+
 public partial class GameOverScreen : Control
 {
     private void OnRestartButtonPressed()

@@ -1,6 +1,8 @@
 using Godot;
 using System;
 
+namespace Asteroids.Scripts;
+
 public partial class Laser : Area2D
 {
     private Vector2 _movementVector = new Vector2(0, -1);

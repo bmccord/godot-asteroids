@@ -1,6 +1,9 @@
 using Godot;
-using System;
+using GodotUtilities;
 
+namespace Asteroids.Scripts;
+
+[Scene]
 public partial class Asteroid : Area2D
 {
     [Signal]
@@ -16,10 +19,12 @@ public partial class Asteroid : Area2D
         Large
     }
 
-    private Sprite2D _sprite;
-    private CollisionShape2D _collisionShape;
+    [Node]
+    private Sprite2D _asteroidSprite;
+    [Node]
+    private CollisionShape2D _asteroidCollisionShape;
 
-    public int Points
+    private int Points
     {
         get
         {
@@ -35,12 +40,14 @@ public partial class Asteroid : Area2D
 
     [Export] public AsteroidType Size = AsteroidType.Large;
 
+    public override void _Notification(int what) {
+        if (what == NotificationSceneInstantiated) {
+            WireNodes(); // this is a generated method
+        }
+    }
+    
     public override void _Ready()
     {
-        _sprite = GetNode<Sprite2D>("Sprite2D");
-        _collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
-
-
         // Randomize the rotation of the asteroid
         Rotation = (float)GD.RandRange(0, Mathf.Pi * 2);
 
@@ -48,20 +55,20 @@ public partial class Asteroid : Area2D
         {
             case AsteroidType.Small:
                 _speed = GD.RandRange(100, 200);
-                _sprite.Texture = GD.Load<Texture2D>("res://assets/sprites/meteor_small.png");
-                _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Shape,
+                _asteroidSprite.Texture = GD.Load<Texture2D>("res://assets/sprites/meteor_small.png");
+                _asteroidCollisionShape.SetDeferred(CollisionShape2D.PropertyName.Shape,
                     GD.Load<Shape2D>("res://resources/asteroid_cshape_small.tres"));
                 break;
             case AsteroidType.Medium:
                 _speed = GD.RandRange(100, 150);
-                _sprite.Texture = GD.Load<Texture2D>("res://assets/sprites/meteor_medium.png");
-                _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Shape,
+                _asteroidSprite.Texture = GD.Load<Texture2D>("res://assets/sprites/meteor_medium.png");
+                _asteroidCollisionShape.SetDeferred(CollisionShape2D.PropertyName.Shape,
                     GD.Load<Shape2D>("res://resources/asteroid_cshape_medium.tres"));
                 break;
             case AsteroidType.Large:
                 _speed = GD.RandRange(50, 100);
-                _sprite.Texture = GD.Load<Texture2D>("res://assets/sprites/meteor_large.png");
-                _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Shape,
+                _asteroidSprite.Texture = GD.Load<Texture2D>("res://assets/sprites/meteor_large.png");
+                _asteroidCollisionShape.SetDeferred(CollisionShape2D.PropertyName.Shape,
                     GD.Load<Shape2D>("res://resources/asteroid_cshape_large.tres"));
                 break;
         }
@@ -73,7 +80,7 @@ public partial class Asteroid : Area2D
 
         float radius = 0f;
 
-        if (_collisionShape.Shape is CircleShape2D circleShape)
+        if (_asteroidCollisionShape.Shape is CircleShape2D circleShape)
         {
             radius = circleShape.Radius;
         }
@@ -104,7 +111,7 @@ public partial class Asteroid : Area2D
         QueueFree();
     }
 
-    private void OnBodyEntered(Node body)
+    private static void OnBodyEntered(Node body)
     {
         if (body is Player player)
         {

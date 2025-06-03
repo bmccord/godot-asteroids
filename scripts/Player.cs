@@ -1,7 +1,11 @@
 using Godot;
 using System;
 using System.Threading.Tasks;
+using GodotUtilities;
 
+namespace Asteroids.Scripts;
+
+[Scene]
 public partial class Player : CharacterBody2D
 {
     [Signal]
@@ -14,21 +18,24 @@ public partial class Player : CharacterBody2D
     [Export] private float _maxSpeed = 350.0f;
     [Export] private float _rotationSpeed = 250.0f;
 
+    [Node]
     private Node2D _muzzle;
+    [Node]
+    private Sprite2D _playerSprite;
+    [Node]
+    private CollisionShape2D _playerCollisionShape;
+    
     private PackedScene _laserScene = GD.Load<PackedScene>("res://scenes/laser.tscn");
-    private Sprite2D _sprite;
-    private CollisionShape2D _collisionShape;
 
     private bool _shootCooldown = false;
     private float _rateOfFire = 0.15f;
 
     private bool _alive = true;
 
-    public override void _Ready()
-    {
-        _muzzle = GetNode<Node2D>("Muzzle");
-        _sprite = GetNode<Sprite2D>("Sprite2D");
-        _collisionShape = GetNode<CollisionShape2D>("CollisionShape2D");
+    public override void _Notification(int what) {
+        if (what == NotificationSceneInstantiated) {
+            WireNodes(); // this is a generated method
+        }
     }
 
     public override async void _Process(double delta)
@@ -38,16 +45,12 @@ public partial class Player : CharacterBody2D
             return;
         }
 
-        if (Input.IsActionPressed("shoot"))
-        {
-            if (!_shootCooldown)
-            {
-                _shootCooldown = true;
-                ShootLaser();
-                await ToSignal(GetTree().CreateTimer(_rateOfFire), SceneTreeTimer.SignalName.Timeout);
-                _shootCooldown = false;
-            }
-        }
+        if (!Input.IsActionPressed("shoot")) return;
+        if (_shootCooldown) return;
+        _shootCooldown = true;
+        ShootLaser();
+        await ToSignal(GetTree().CreateTimer(_rateOfFire), SceneTreeTimer.SignalName.Timeout);
+        _shootCooldown = false;
     }
 
     private void ShootLaser()
@@ -108,26 +111,22 @@ public partial class Player : CharacterBody2D
         }
     }
 
-    public void Die()
+    private void Die()
     {
-        if (_alive)
-        {
-            _alive = false;
-            _sprite.Visible = false;
-            _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true);
-            EmitSignal("Died");
-        }
+        if (!_alive) return;
+        _alive = false;
+        _playerSprite.Visible = false;
+        _playerCollisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true);
+        EmitSignal("Died");
     }
 
     public void Respawn(Vector2 position)
     {
-        if (!_alive)
-        {
-            _alive = true;
-            GlobalPosition = position;
-            Velocity = Vector2.Zero;
-            _sprite.Visible = true;
-            _collisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, false);
-        }
+        if (_alive) return;
+        _alive = true;
+        GlobalPosition = position;
+        Velocity = Vector2.Zero;
+        _playerSprite.Visible = true;
+        _playerCollisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, false);
     }
 }

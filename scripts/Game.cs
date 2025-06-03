@@ -1,21 +1,33 @@
 using Godot;
 using System;
+using GodotUtilities;
 
+namespace Asteroids.Scripts;
+
+[Scene]
 public partial class Game : Node2D
 {
+    [Node]
     private Node _lasers;
+    [Node]
     private Player _player;
+    [Node]
     private Node _asteroids;
+    [Node]  
     private Node2D _playerSpawnPosition;
+    [Node ("UI/GameOverScreen")]
     private Control _gameOverScreen;
+    [Node ("PlayerSpawnPosition/PlayerSpawnArea")]
     private PlayerSpawnArea _playerSpawnArea;
+    [Node ("UI/HUD")]
+    private Hud _hud;
 
     private PackedScene _asteroidScene;
 
 
     private int _score = 0;
 
-    public int Score
+    private int Score
     {
         get => _score;
         set
@@ -36,19 +48,17 @@ public partial class Game : Node2D
         }
         get => _lives;
     }
-
-    private Hud _hud;
-
+    
+    public override void _Notification(int what) {
+        if (what == NotificationSceneInstantiated) {
+            WireNodes(); // this is a generated method
+        }
+    }
+    
     public override void _Ready()
     {
-        _hud = GetNode<Hud>("UI/HUD");
-        _lasers = GetNode<Node>("Lasers");
-        _player = GetNode<Player>("Player");
-        _asteroids = GetNode<Node>("Asteroids");
-        _gameOverScreen = GetNode<Control>("UI/GameOverScreen");
         _asteroidScene = GD.Load<PackedScene>("res://scenes/asteroid.tscn");
-        _playerSpawnPosition = GetNode<Node2D>("PlayerSpawnPosition");
-        _playerSpawnArea = GetNode<PlayerSpawnArea>("PlayerSpawnPosition/PlayerSpawnArea");
+
         _player.LaserShot += OnPlayerLaserShot;
         _player.Died += OnPlayerDied;
         _gameOverScreen.Visible = false;
