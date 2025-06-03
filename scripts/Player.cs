@@ -1,6 +1,4 @@
 using Godot;
-using System;
-using System.Threading.Tasks;
 using GodotUtilities;
 
 namespace Asteroids.Scripts;
@@ -18,13 +16,11 @@ public partial class Player : CharacterBody2D
     [Export] private float _maxSpeed = 350.0f;
     [Export] private float _rotationSpeed = 250.0f;
 
-    [Node]
-    private Node2D _muzzle;
-    [Node]
-    private Sprite2D _playerSprite;
-    [Node]
-    private CollisionShape2D _playerCollisionShape;
-    
+    [Node] private Node2D _muzzle;
+    [Node] private Sprite2D _playerSprite;
+    [Node] private CollisionShape2D _playerCollisionShape;
+    [Node] private AudioStreamPlayer _engineSound;
+
     private PackedScene _laserScene = GD.Load<PackedScene>("res://scenes/laser.tscn");
 
     private bool _shootCooldown = false;
@@ -32,8 +28,10 @@ public partial class Player : CharacterBody2D
 
     private bool _alive = true;
 
-    public override void _Notification(int what) {
-        if (what == NotificationSceneInstantiated) {
+    public override void _Notification(int what)
+    {
+        if (what == NotificationSceneInstantiated)
+        {
             WireNodes(); // this is a generated method
         }
     }
@@ -64,12 +62,26 @@ public partial class Player : CharacterBody2D
 
     public override void _PhysicsProcess(double delta)
     {
+        var inputVector = new Vector2(0, Input.GetAxis("move_forward", "move_backward"));
+        if (inputVector != Vector2.Zero && _alive)
+        {
+            if (!_engineSound.Playing)
+            {
+                _engineSound.Play();
+            }
+        }
+        else
+        {
+            if (_engineSound.Playing)
+            {
+                _engineSound.Stop();
+            }
+        }
+        
         if (!_alive)
         {
             return;
         }
-
-        var inputVector = new Vector2(0, Input.GetAxis("move_forward", "move_backward"));
 
         Velocity += inputVector.Rotated(Rotation) * _acceleration;
         Velocity = Velocity.LimitLength(_maxSpeed);
@@ -114,9 +126,11 @@ public partial class Player : CharacterBody2D
     private void Die()
     {
         if (!_alive) return;
+        
         _alive = false;
         _playerSprite.Visible = false;
         _playerCollisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, true);
+        
         EmitSignal("Died");
     }
 
