@@ -20,9 +20,8 @@ public partial class Player : CharacterBody2D
     [Node] private Sprite2D _playerSprite;
     [Node] private CollisionShape2D _playerCollisionShape;
     [Node] private AudioStreamPlayer _engineSound;
-
-    private PackedScene _laserScene = GD.Load<PackedScene>("res://scenes/laser.tscn");
-
+    [Node] private ResourcePreloader _resourcePreloader;
+    
     private bool _shootCooldown = false;
     private float _rateOfFire = 0.15f;
 
@@ -53,7 +52,7 @@ public partial class Player : CharacterBody2D
 
     private void ShootLaser()
     {
-        var l = _laserScene.Instantiate<Laser>();
+        var l = _resourcePreloader.InstanceSceneOrNull<Laser>("LaserScene");
         l.GlobalPosition = _muzzle.GlobalPosition;
         l.Rotation = Rotation;
 

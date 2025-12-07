@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://d16434xxs7c6j"]
+[gd_scene load_steps=6 format=3 uid="uid://d16434xxs7c6j"]
 
 [ext_resource type="Texture2D" uid="uid://y13d26fawd1h" path="res://assets/sprites/playerShip1_blue.png" id="1_3vyb7"]
 [ext_resource type="Script" uid="uid://7rom8bdyuey8" path="res://scripts/Player.cs" id="1_g2els"]
 [ext_resource type="AudioStream" uid="uid://ddx1np141ajh6" path="res://assets/sounds/thrusterFire_002.ogg" id="3_qhqgy"]
+[ext_resource type="PackedScene" uid="uid://l6tnojuaicmv" path="res://scenes/laser.tscn" id="4_dqkch"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_3vyb7"]
 radius = 22.0907
@@ -26,3 +27,6 @@ position = Vector2(0, -34)
 stream = ExtResource("3_qhqgy")
 volume_db = -11.243
 pitch_scale = 15.0
+
+[node name="ResourcePreloader" type="ResourcePreloader" parent="."]
+resources = [PackedStringArray("LaserScene"), [ExtResource("4_dqkch")]]
